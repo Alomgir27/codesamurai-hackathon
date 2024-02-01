@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+  app:
+    image: app
+    build:
+      context: .
+    ports:
+      - "5000:3000"
+    env_file:
+      - .env
+    environment:
+      MONGODB_URI: mongodb+srv://codesamurai:codesamurai@cluster0.iwnqdkt.mongodb.net/codesamurai?retryWrites=true&w=majority
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:latest
+    restart: always
+    ports:
+      - "27017:27017"
+
+volumes:
+  mongodata:
+    driver: local

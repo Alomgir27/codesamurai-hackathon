@@ -1,0 +1,3 @@
+cmd `
+ docker-compose up --build
+`
