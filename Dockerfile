@@ -9,4 +9,6 @@ RUN bash -c "npm install"
 
 EXPOSE 3000
 
+RUN bash -c "npm run clean"
+
 CMD ["npm", "start"]

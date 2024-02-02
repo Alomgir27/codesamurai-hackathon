@@ -5,6 +5,7 @@ const bookSchema = new Schema({
   id: {
     type: Number,
     required: true,
+    unique: true,
   },
   title: { //we assume that sometimes the title and others are not required
     type: String,
