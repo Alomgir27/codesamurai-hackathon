@@ -1,0 +1,39 @@
+[
+  {
+    "id": 101,
+    "title": "The Catcher in the Rye",
+    "author": "J.D. Salinger",
+    "genre": "Fiction",
+    "price": 15.99
+  },
+  {
+    "id": 202,
+    "title": "Sapiens: A Brief History of Humankind",
+    "author": "Yuval Noah Harari",
+    "genre": "Non-fiction",
+    "price": 21.50
+  },
+  {
+    "id": 303,
+    "title": "1984",
+    "author": "George Orwell",
+    "genre": "Dystopian",
+    "price": 12.75
+  },
+  {
+    "id": 404,
+    "title": "The Great Gatsby",
+    "author": "F. Scott Fitzgerald",
+    "genre": "Classic",
+    "price": 18.49
+  },
+  {
+    "id": 505,
+    "title": "To Kill a Mockingbird",
+    "author": "Harper Lee",
+    "genre": "Historical Fiction",
+    "price": 14.99
+  }
+]
+
+
