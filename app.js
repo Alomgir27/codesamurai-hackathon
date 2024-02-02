@@ -6,7 +6,6 @@ const Book = require("./models");
 require("dotenv").config();
 
 const dbUrl = process.env.MONGODB_URI;
-console.log(dbUrl);
 
 mongoose
   .connect(dbUrl)
@@ -23,122 +22,88 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
+
 //@ROUTE: /api/books
 //@METHOD: POST
-//@DESCRIPTION: User can add new books
-//@RESPONSE_TYPE: json
-//@RESPONSE_STATUS_CODE: 201
+//@DESCRIPTION: Add a new book
 app.post("/api/books", (req, res) => {
-  const { id, title, author, price } = req.body;
-  console.log(req.body);
+  const { id, title, author, genre, price } = req.body;
+  //id is numic and price is float
   const book = new Book({
-    id,
-    _id: new mongoose.Types.ObjectId(),
-    title,
-    author,
-    price,
+    id: parseInt(id),
+    title: title,
+    author: author,
+    genre: genre,
+    price: parseFloat(price),
   });
   book
     .save()
     .then((result) => {
-      res.status(201).json(result);
+      let { id, title, author, genre, price } = result;
+      res.status(201).json({ id, title, author, genre, price });
     })
     .catch((error) => {
-      console.log(error);
       res.status(500).json({
-        message: "Failed to add book!",
+        error,
       });
     });
 });
 
 
-//@ROUTE: /api/books
-//@METHOD: GET
-//@DESCRIPTION: User can see all available books
-//@RESPONSE_TYPE: json
-//@RESPONSE_STATUS_CODE: 200
-app.get("/api/books", (req, res) => {
-  Book.find()
+
+//@ROUTE: /api/books/:id
+//@METHOD: PUT
+//@DESCRIPTION: Update a book
+app.put("/api/books/:id", (req, res) => {
+  const id = req.params.id;
+  const { title, author, genre, price } = req.body
+  Book.findOne({ id: id })
+    .then((book) => {
+      if (!book) {
+        return res.status(404).json({
+          message: `book with id: ${id} was not found`,
+        });
+      }
+      book.title = title;
+      book.author = author;
+      book.genre = genre;
+      book.price = price;
+      return book.save();
+    })
     .then((result) => {
-      res.status(200).json(result);
+      let { id, title, author, genre, price } = result;
+      res.status(200).json({ id, title, author, genre, price });
     })
     .catch((error) => {
       res.status(500).json({
-        message: "Failed to fetch books!",
+        error,
       });
     });
-});
+})
 
-//@ROUTE: /books
+
+//@ROUTE: /api/books/:id
 //@METHOD: GET
-//@DESCRIPTION: books can be searched and filtered using author information
-//@RESPONSE_TYPE: json
-//@RESPONSE_STATUS_CODE: 200
-app.get("/books", (req, res) => {
-  const { author, sort, order, limit } = req.query;
-  let sortQuery = {};
-  if (sort) {
-    sortQuery[sort] = order === "asc" ? 1 : -1;
-  }
-  //do string regex search
-  Book.find({ author })
-    .sort(sortQuery)
-    .limit(parseInt(limit))
-    .then((result) => {
-      res.status(200).json(result);
+//@DESCRIPTION: Fetch a book by ID
+app.get("/api/books/:id", (req, res) => {
+  const id = req.params.id;
+  Book.findOne({ id: id })
+    .then((book) => {
+      if (!book) {
+        return res.status(404).json({
+          message: `book with id: ${id} was not found`,
+        });
+      }
+      let { id, title, author, genre, price } = book;
+      res.status(200).json({ id, title, author, genre, price });
     })
     .catch((error) => {
-      console.log(error);
       res.status(500).json({
-        message: "Failed to fetch books!",
+        error,
       });
     });
-});
+})
 
-
-let data = [
-  {
-  "id": 1,
-  "title": "The Great Gatsby",
-  "author": "F. Scott Fitzgerald",
-  "price": 150
-  },
-  {
-  "id": 2,
-  "title": "1984",
-  "author": "George Orwell",
-  "price": 250
-  },
-  {
-  "id": 3,
-  "title": "Animal Farm",
-  "author": "George Orwell",
-  "price": 299
-  }
-];
-
-//inserting data into the database
-async function insertData() {
-  try {
-    await Book.insertMany(data);
-    console.log("Data inserted successfully");
-  } catch (error) {
-    console.log("Failed to insert data", error);
-  }
-}
-
-insertData();
-
-async function deleteData() {
-  try {
-    await Book.deleteMany();
-    console.log("Data deleted successfully");
-  } catch (error) {
-    console.log("Failed to delete data", error);
-  }
-}
-
-// deleteData();
 
 
 
