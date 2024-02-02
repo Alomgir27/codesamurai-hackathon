@@ -106,6 +106,54 @@ app.get("/api/books/:id", (req, res) => {
 
 
 
+//@ROUTE: /api/books
+//@METHOD: GET
+//@DESCRIPTION: Fetch all books
+app.get("/api/books", (req, res) => {
+  Book.find()
+    .sort({ id: 1 })
+    .then((res) => {
+      let books = res.map((book) => {
+        let { id, title, author, genre, price } = book;
+        return { id, title, author, genre, price };
+      }
+      );
+      res.status(200).json({ books });
+    })
+    .catch((error) => {
+      res.status(500).json({
+        error,
+      });
+    });
+});
+
+
+//@ROUTE: /api/books
+//@METHOD: GET
+//@DESCRIPTION: Search books
+app.get("/api/books", (req, res) => {
+  let searchField = req.query.title || req.query.author || req.query.genre;
+  let sortField = req.query.sort || "id";
+  let sortOrder = req.query.order || "ASC";
+  let sort = {};
+  sort[sortField] = sortOrder === "ASC" ? 1 : -1;
+  Book.find({ [searchField]: req.query[searchField] })
+    .sort(sort)
+    .then((res) => {
+      let books = res.map((book) => {
+        let { id, title, author, genre, price } = book;
+        return { id, title, author, genre, price };
+      }
+      );
+      res.status(200).json({ books });
+    })
+    .catch((error) => {
+      res.status(500).json({
+        error,
+      });
+    });
+});
+
 
 
 app.listen(3000, () => {
