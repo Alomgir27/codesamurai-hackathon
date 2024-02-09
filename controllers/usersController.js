@@ -332,9 +332,7 @@ const purchaseTicket = async (req, res) => {
     
     
     
-    
-    
- 
+
 
 module.exports = {
     addUser,
