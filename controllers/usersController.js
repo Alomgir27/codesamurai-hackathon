@@ -15,8 +15,26 @@ const addUser = async (req, res) => {
     res.status(201).json({ user_id, user_name, balance });
   } catch (error) {
     res.status(400).json({ error: error?.message });
-  }
+    }
 };
+
+
+//make a priority queue
+class PriorityQueue {
+    constructor() {
+        this.queue = [];
+    }
+    enqueue(value, priority) {
+        this.queue.push({ value, priority });
+        this.queue.sort((a, b) => a.priority - b.priority);
+    }
+    dequeue() {
+        return this.queue.shift().value;
+    }
+    isEmpty() {
+        return this.queue.length === 0;
+    }
+}
 
 
 
@@ -245,19 +263,32 @@ const getRouteByCostTimeAfter = async (stations, trains, from, to, timeAfter) =>
         return { message: `no routes available from station: ${from} to station: ${to}`, status: 403 };
     }
     let stationsInOrder = [];
+    //insert initial station and departure time
     let totalCost = 0;
     let totalTime = 0;
     for (let i = 0; i < path.length - 1; i++) {
+        if (i === 0) {
+            let station = stations.find(station => station.station_id === path[i]);
+            let theTrain = trains.find(train => train.stops.find(stop => stop.station_id === path[i]));
+            stationsInOrder.push({ station_id: station.station_id, train_id: path[i], arrival_time: null, departure_time: theTrain.stops.find(stop => stop.station_id === path[i]).departure_time });
+        }
         let from = path[i];
         let to = path[i + 1];
         let train = graph[from].find(train => train.to === to);
-        let station = stations.find(station => station.station_id === from);
-        const fromDeparture = trains.find(train => train.train_id === train.train_id).stops.find(stop => stop.station_id === from).departure_time;
-        const toStationArrive = trains.find(train => train.train_id === train.train_id).stops.find(stop => stop.station_id === to).arrival_time;
-        stationsInOrder.push({ station_id: station.station_id, train_id: train.train_id, arrival_time: fromDeparture, departure_time: toStationArrive });
+        let station = stations.find(station => station.station_id === to);
+        let theTrain = trains.find(train => train.stops.find(stop => stop.station_id === to));
+        stationsInOrder.push({
+            station_id: station.station_id,
+            train_id: train.train_id,
+            arrival_time: theTrain.stops.find(stop => stop.station_id === to).arrival_time,
+            departure_time: theTrain.stops.find(stop => stop.station_id === to).departure_time
+        });
         totalCost += train.cost;
         totalTime += train.time;
     }
+    stationsInOrder[0].arrival_time = null
+    stationsInOrder[stationsInOrder.length - 1].departure_time = null
+    // stationsInOrder[stationsInOrder.length - 1].train_id = null
     return { cost: totalCost, time: totalTime, stations: stationsInOrder };
 }
     
