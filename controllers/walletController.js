@@ -92,7 +92,7 @@ const getWallet = async (req, res) => {
         if (!user) {
           return res.status(404).json({ message: `wallet with id: ${wallet_id} was not found` });
         }
-        res.status(200).json({ wallet_id: user.user_id, balance: user.balance, wallet_user: { user_id: user.user_id, user_name: user.user_name } });
+        res.status(200).json({ wallet_id: user.user_id, wallet_balance: user.balance, wallet_user: { user_id: user.user_id, user_name: user.user_name } });
     } catch (error) {
         res.status(400).json({ error: error?.message });
     }
@@ -116,7 +116,7 @@ const updateWallet = async (req, res) => {
         await user.save()
         //send the updated user object
         const updatedUser = await User.findOne({ user_id: wallet_id });
-        res.status(200).json({ wallet_id: updatedUser.user_id, balance: updatedUser.balance, wallet_user: { user_id: updatedUser.user_id, user_name: updatedUser.user_name } });
+        res.status(200).json({ wallet_id: updatedUser.user_id, wallet_balance: updatedUser.balance, wallet_user: { user_id: updatedUser.user_id, user_name: updatedUser.user_name } });
 
     }
     catch (error) {
