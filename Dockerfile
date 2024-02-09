@@ -7,7 +7,7 @@ COPY . .
 
 RUN bash -c "npm install"
 
-EXPOSE 3000
+EXPOSE 8000
 
 RUN bash -c "npm run clean"
 
