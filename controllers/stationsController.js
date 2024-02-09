@@ -287,15 +287,24 @@ const listTrains = async (req, res) => {
         }
         const trains = await Train.find({ "stops.station_id": station_id }).sort({ "stops.departure_time": 1, "stops.arrival_time": 1, train_id: 1 });
         let trainList = [];
-        trains.forEach(train => {
-            const stop = train.stops.find(stop => stop.station_id === station_id);
-            trainList.push({
-                train_id: train.train_id,
-                arrival_time: stop.arrival_time,
-                departure_time: stop.departure_time
-            });
-        });
+       for (let i = 0; i < trains.length; i++) {
+           const train = trains[i];
+          for (let j = 0; j < train.stops.length; j++) {
+              if (train.stops[j].station_id === parseInt(station_id)) {
+                  console.log(train.stops[j]);
+                  trainList.push({
+                      train_id: train.train_id,
+                      arrival_time: train.stops[j].arrival_time,
+                      departure_time: train.stops[j].departure_time
+                  });
+                  break;
+              }
+           }
+          
+        }
         res.status(200).json({ station_id, trains: trainList });
+       
+           
     }
     catch (error) {
         res.status(400).json({ error: error?.message });

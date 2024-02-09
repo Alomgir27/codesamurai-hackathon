@@ -129,18 +129,6 @@ const { User } = require('../models');
 const addTrain = async (req, res) => {
   const { train_id, train_name, capacity, stops } = req.body;
     try {
-        // if (stops?.length) {
-        //     //sort it by arrival time if arrival time is null then it's should be at the start
-        //     stops.sort((a, b) => {
-        //         if (a.arrival_time === null) {
-        //             return -1;
-        //         }
-        //         if (b.arrival_time === null) {
-        //             return 1;
-        //         }
-        //         return a.arrival_time.localeCompare(b.arrival_time);
-        //     });
-        // }  
     const train = new Train({ train_id, train_name, capacity, stops });
     await train.save();
     if(stops?.length){
