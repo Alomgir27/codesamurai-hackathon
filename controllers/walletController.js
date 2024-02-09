@@ -10,8 +10,7 @@ const { User } = require('../models');
 // balance integer User's wallet balance
 
 //wallets
-router.get('/wallets/:wallet_id', walletsController.getWallet);
-router.put('/wallets/:wallet_id', walletsController.updateWallet);
+
 //wallets
 // router.get('/wallets/:wallet_id', walletsController.getWallet);
 // router.put('/wallets/:wallet_id', walletsController.updateWallet);
@@ -126,4 +125,7 @@ const updateWallet = async (req, res) => {
 }
 
 
-exports.module = { getWallet, updateWallet };
+module.exports = {
+  getWallet,
+  updateWallet
+}

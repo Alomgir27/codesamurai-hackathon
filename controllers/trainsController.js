@@ -122,3 +122,41 @@ const { User } = require('../models');
 //  "service_ends": "08:30",
 //  "num_stations": 3
 // }
+
+// @ROUTE - /api/trains
+// @DESC - Add a train
+// @METHOD - POST
+const addTrain = async (req, res) => {
+  const { train_id, train_name, capacity, stops } = req.body;
+    try {
+        // if (stops?.length) {
+        //     //sort it by arrival time if arrival time is null then it's should be at the start
+        //     stops.sort((a, b) => {
+        //         if (a.arrival_time === null) {
+        //             return -1;
+        //         }
+        //         if (b.arrival_time === null) {
+        //             return 1;
+        //         }
+        //         return a.arrival_time.localeCompare(b.arrival_time);
+        //     });
+        // }  
+    const train = new Train({ train_id, train_name, capacity, stops });
+    await train.save();
+    if(stops?.length){
+        const service_start = stops[0].departure_time;
+        const service_ends = stops[stops.length - 1].arrival_time;
+        const num_stations = stops.length;
+        res.status(201).json({ train_id, train_name, capacity, service_start, service_ends, num_stations });
+    }else{
+        res.status(201).json({ train_id, train_name, capacity, service_start: null, service_ends: null, num_stations: 0 });
+    }
+  } catch (error) {
+    res.status(400).json({ error: error?.message });
+  }
+};
+
+
+module.exports = {
+    addTrain
+    };
