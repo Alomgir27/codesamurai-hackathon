@@ -122,6 +122,7 @@ const getRouteByCost = async (stations, trains, from, to) => {
         totalCost += train.cost;
         totalTime = convertTimeToMinutes(train.time);
     }
+    totalTime = convertTimeToMinutes(stationsInOrder[stationsInOrder.length - 1].arrival_time) - convertTimeToMinutes(stationsInOrder[0].departure_time)
     return { cost: totalCost, time: totalTime, stations: stationsInOrder };
 }
    
@@ -212,8 +213,8 @@ const getRouteByTime = async (stations, trains, from, to) => {
             departure_time: theTrain.stops.find(stop => stop?.station_id === from).departure_time
         });
         totalCost += train.cost;
-        totalTime = convertTimeToMinutes(train.time);
     }
+    totalTime = convertTimeToMinutes(stationsInOrder[stationsInOrder.length - 1].arrival_time) - convertTimeToMinutes(stationsInOrder[0].departure_time)
     return { cost: totalCost, time: totalTime, stations: stationsInOrder };
 }
 
@@ -303,11 +304,11 @@ const getRouteByCostTimeAfter = async (stations, trains, from, to, timeAfter) =>
             departure_time: theTrain.stops.find(stop => stop?.station_id === to).departure_time
         });
         totalCost += train.cost;
-        totalTime += train.time;
     }
     stationsInOrder[0].arrival_time = null
     stationsInOrder[stationsInOrder.length - 1].departure_time = null
     // stationsInOrder[stationsInOrder.length - 1].train_id = null
+    totalTime = convertTimeToMinutes(stationsInOrder[stationsInOrder.length - 1].arrival_time) - convertTimeToMinutes(stationsInOrder[0].departure_time)
     return { cost: totalCost, time: totalTime, stations: stationsInOrder };
 }
     
