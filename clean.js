@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { User, Station, Train } = require("../models");
+const { User, Station, Train } = require("./models");
 require("dotenv").config();
 
 const dbUrl = process.env.MONGODB_URI;
