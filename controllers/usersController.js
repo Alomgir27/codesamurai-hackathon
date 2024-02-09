@@ -88,7 +88,9 @@ const getRouteByCost = async (stations, trains, from, to) => {
         let to = path[i + 1];
         let train = graph[from].find(train => train.to === to);
         let station = stations.find(station => station.station_id === from);
-        stationsInOrder.push({ station_id: station.station_id, train_id: train.train_id, arrival_time: station.latitude, departure_time: train.time });
+        const fromDeparture = trains.find(train => train.train_id === train.train_id).stops.find(stop => stop.station_id === from).departure_time;
+        const toStationArrive = trains.find(train => train.train_id === train.train_id).stops.find(stop => stop.station_id === to).arrival_time;
+        stationsInOrder.push({ station_id: station.station_id, train_id: train.train_id, arrival_time: fromDeparture, departure_time: toStationArrive });
         totalCost += train.cost;
         totalTime += train.time;
     }
@@ -169,7 +171,9 @@ const getRouteByTime = async (stations, trains, from, to) => {
         let to = path[i + 1];
         let train = graph[from].find(train => train.to === to);
         let station = stations.find(station => station.station_id === from);
-        stationsInOrder.push({ station_id: station.station_id, train_id: train.train_id, arrival_time: station.latitude, departure_time: train.time });
+        const fromDeparture = trains.find(train => train.train_id === train.train_id).stops.find(stop => stop.station_id === from).departure_time;
+        const toStationArrive = trains.find(train => train.train_id === train.train_id).stops.find(stop => stop.station_id === to).arrival_time;
+        stationsInOrder.push({ station_id: station.station_id, train_id: train.train_id, arrival_time: fromDeparture, departure_time: toStationArrive });
         totalCost += train.cost;
         totalTime += train.time;
     }
@@ -248,7 +252,9 @@ const getRouteByCostTimeAfter = async (stations, trains, from, to, timeAfter) =>
         let to = path[i + 1];
         let train = graph[from].find(train => train.to === to);
         let station = stations.find(station => station.station_id === from);
-        stationsInOrder.push({ station_id: station.station_id, train_id: train.train_id, arrival_time: station.latitude, departure_time: train.time });
+        const fromDeparture = trains.find(train => train.train_id === train.train_id).stops.find(stop => stop.station_id === from).departure_time;
+        const toStationArrive = trains.find(train => train.train_id === train.train_id).stops.find(stop => stop.station_id === to).arrival_time;
+        stationsInOrder.push({ station_id: station.station_id, train_id: train.train_id, arrival_time: fromDeparture, departure_time: toStationArrive });
         totalCost += train.cost;
         totalTime += train.time;
     }
