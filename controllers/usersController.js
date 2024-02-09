@@ -3,129 +3,6 @@ const { Station } = require('../models');
 const { Train } = require('../models');
 
 
-// const UserSchema = new Schema({
-//   user_id: {
-//     type: Number,
-//     required: true
-//   },
-//   user_name: {
-//     type: String,
-//     required: true
-//   },
-//   balance: {
-//     type: Number,
-//     required: true
-//   }
-// });
-
-
-// const StationSchema = new Schema({
-//   station_id: {
-//     type: Number,
-//     required: true
-//   },
-//   station_name: {
-//     type: String,
-//     required: true
-//   },
-//   longitude: {
-//     type: Number,
-//     required: true
-//   },
-//   latitude: {
-//     type: Number,
-//     required: true
-//   }
-// }); 
-
-
-// const TrainSchema = new Schema({
-//   train_id: {
-//     type: Number,
-//     required: true
-//   },
-//   train_name: {
-//     type: String,
-//     required: true
-//   },
-//   capacity: {
-//     type: Number,
-//     required: true
-//   },
-//   stops: [
-//     {
-//       station_id: {
-//         type: Number,
-//         required: true
-//       },
-//       arrival_time: {
-//         type: String,
-//         required: false,
-//         default: null
-//       },
-//       departure_time: {
-//         type: String,
-//         required: false,
-//         default: null
-//       },
-//       fare: {
-//         type: Number,
-//         required: false,
-//         default: 0
-//       }
-//     }
-//   ]
-// });
-
-
-
-
-// Request Specification
-// URL: /api/users
-// Method: POST
-// Request model:
-
-// {
-// "user_id": integer, # user's numeric id
-// "user_name": string, # user's full name
-// "balance": integer # user's wallet balance
-// }
-
-// Successful Response
-// Upon successful operation, your API must return a 201 status code with the saved user object.
-// Response status: 201 - Created
-// Response model:
-
-// {
-// "user_id": integer, # user's numeric id
-// "user_name": string, # user's full name
-// "balance": integer # user's wallet balance
-// }
-
-// Examples
-// Let's look at some example requests and responses.
-// Example request:
-
-// Request URL: [POST] http://localhost:8000/api/users
-// Content Type: application/json
-// Request Body:
-
-// {
-// "user_id": 1,
-// "user_name": "Fahim",
-// "balance": 100
-// }
-
-// Example successful response:
-// Content Type: application/json
-// HTTP Status Code: 201
-// Response Body:
-
-// {
-// "user_id": 1,
-// "user_name": "Fahim",
-// "balance": 100
-// }
 
 //@ROUTE - /api/users
 //@DESC - Add a user
@@ -140,93 +17,6 @@ const addUser = async (req, res) => {
     res.status(400).json({ error: error?.message });
   }
 };
-
-
-// Request Specification
-// URL: /api/routes?from={station_from}&to={station_to}&optimize={cost|time}
-// Method: GET
-// Request model: None
-// Here, station_from and station_to are station IDs, and optimize will be either cost or time.
-// Successful Response
-// Upon successful operation, your API must return a 200 status code with total time, total cost, and a list of all
-// stations in order of visits. You should also include each station's train ID and arrival and departure schedules in
-// the output object. Departure time should follow the same time format as in the input model. For the first
-// station, the arrival time should be null,; for the last station, the departure time should be null.
-// Response status: 201 - Created
-// Response model
-// {
-//  "total_cost": int, # total cost
-//  "total_time": int, # total time in minutes
-//  "stations": [
-//  {
-//  "station_id": integer, # station's numeric id
-//  "train_id": integer, # train's id user is riding
-//  "arrival_time": string, # arrival time
-//  "departure_time": string # departure time
-//  },
-//  ...
-//  ]
-// }
-// Failed Response
-// Unreachable station
-// If it is not possible to reach the destination station from the starting station, output a message with HTTP 403 -
-// Forbidden and a message for the user.
-// Response status: 403 - Forbidden
-// Response model
-// {
-//  "message": "no routes available from station: {station_from} to station:
-// {station_to}"
-// }
-// Replace {station_from} and {station_to} as specified in the input model.
-// Examples
-// Let's look at some example requests and response.
-// Example request:
-// Request URL: [PUT] http://localhost:8000/api/routes?from=1&to=5&optimize=cost
-// Example successful response:
-// Content Type: application/json
-// HTTP Status Code: 201
-// Response Body:
-// {
-//  "total_cost": 101,
-//  "total_time": 85,
-//  "stations": [
-//  {
-//  "station_id": 1,
-//  "train_id": 3,
-//  "departure_time": "11:00",
-//  "arrival_time": null,
-//  },
-//  {
-//  "station_id": 3,
-//  "train_id": 2,
-//  "departure_time": "12:00",
-//  "arrival_time": "11:55"
-//  },
-//  {
-//  "station_id": 5,
-//  "train_id": null,
-//  "departure_time": null,
-//  "arrival_time": "12:25"
-//  }
-//  ]
-// }
-// Example request for no tickets:
-// Request URL: [PUT] http://localhost:8000/api/tickets
-// Content Type: application/json
-// Request Body:
-// {
-//  "wallet_id": 3,
-//  "time_after": "10:55",
-//  "station_from": 1,
-//  "station_to": 5
-// }
-// Example failed response:
-// Content Type: application/json
-// HTTP Status Code: 403
-// Response Body:
-// {
-//  "message": "no routes available from station: 1 to station: 5"
-// }
 
 
 
@@ -245,8 +35,9 @@ const getRouteByCost = async (stations, trains, from, to) => {
             let from = trains[i].stops[j];
             let to = trains[i].stops[j + 1];
             let cost = to.fare;
+            let capacity = trains[i].capacity;
             //here time is equall to null or hh:mm
-            graph[from.station_id].push({ to: to.station_id, cost, time: to.arrival_time, train_id: trains[i].train_id });
+            graph[from.station_id].push({ to: to.station_id, cost, time: to.arrival_time, train_id: trains[i].train_id , capacity });
         }
     }
     let visited = {};
@@ -272,7 +63,7 @@ const getRouteByCost = async (stations, trains, from, to) => {
         for (let i = 0; i < graph[current].length; i++) {
             let neighbor = graph[current][i].to;
             let newCost = cost[current] + graph[current][i].cost;
-            if (newCost < cost[neighbor]) {
+            if (newCost < cost[neighbor] && graph[current][i].capacity > 0) {
                 cost[neighbor] = newCost;
                 previous[neighbor] = current;
                 queue.enqueue(neighbor, newCost);
@@ -304,6 +95,167 @@ const getRouteByCost = async (stations, trains, from, to) => {
     return { cost: totalCost, time: totalTime, stations: stationsInOrder };
 }
    
+const convertTimeToMinutes = (time) => {
+    if (time === null) return 0;
+    let [hours, minutes] = time.split(':');
+    return parseInt(hours) * 60 + parseInt(minutes);
+}
+
+const getRouteByTime = async (stations, trains, from, to) => {
+    //use dijkstra's algorithm to find the shortest path
+    //optime can be cost or time 
+    //from and to is station id
+    //stations is an array of all stations
+    //trains is an array of all trains
+    let graph = {};
+    for (let i = 0; i < stations.length; i++) {
+        graph[stations[i].station_id] = [];
+    }
+    for (let i = 0; i < trains.length; i++) {
+        for (let j = 0; j < trains[i].stops.length - 1; j++) {
+            let from = trains[i].stops[j];
+            let to = trains[i].stops[j + 1];
+            let time = to.arrival_time;
+            let capacity = trains[i].capacity;
+            //here time is equall to null or hh:mm
+            graph[from.station_id].push({ to: to.station_id, cost: to.fare, time, train_id: trains[i].train_id , capacity });
+        }
+    }
+    let visited = {};
+    let previous = {};
+
+    let queue = new PriorityQueue();
+    for (let i = 0; i < stations.length; i++) {
+        visited[stations[i].station_id] = false;
+        previous[stations[i].station_id] = null;
+    }
+    let time = {};
+    for (let i = 0; i < stations.length; i++) {
+        time[stations[i].station_id] = Infinity;
+    }
+    time[from] = 0;
+    queue.enqueue(from, 0);
+    while (!queue.isEmpty()) {
+        let current = queue.dequeue();
+        if (visited[current]) {
+            continue;
+        }
+        visited[current] = true;
+        for (let i = 0; i < graph[current].length; i++) {
+            let neighbor = graph[current][i].to;
+            let newTime = convertTimeToMinutes(graph[current][i].time);
+            if (newTime < time[neighbor] && graph[current][i].capacity > 0) {
+                time[neighbor] = newTime;
+                previous[neighbor] = current;
+                queue.enqueue(neighbor, newTime);
+            }
+        }
+    }
+    let path = [];
+    let current = to;
+    while (current) {
+        path.push(current);
+        current = previous[current];
+    }
+    path = path.reverse();
+    if (path.length === 1) {
+        return { message: `no routes available from station: ${from} to station: ${to}`, status: 403 };
+    }
+    let stationsInOrder = [];
+    let totalCost = 0;
+    let totalTime = 0;
+    for (let i = 0; i < path.length - 1; i++) {
+        let from = path[i];
+        let to = path[i + 1];
+        let train = graph[from].find(train => train.to === to);
+        let station = stations.find(station => station.station_id === from);
+        stationsInOrder.push({ station_id: station.station_id, train_id: train.train_id, arrival_time: station.latitude, departure_time: train.time });
+        totalCost += train.cost;
+        totalTime += train.time;
+    }
+    return { cost: totalCost, time: totalTime, stations: stationsInOrder };
+}
+
+
+const getRouteByCostTimeAfter = async (stations, trains, from, to, timeAfter) => {
+    //use dijkstra's algorithm to find the shortest path
+    //optime can be cost or time
+    //from and to is station id
+    //stations is an array of all stations
+    //trains is an array of all trains
+    let graph = {};
+    for (let i = 0; i < stations.length; i++) {
+        graph[stations[i].station_id] = [];
+    }
+    for (let i = 0; i < trains.length; i++) {
+        for (let j = 0; j < trains[i].stops.length - 1; j++) {
+            let from = trains[i].stops[j];
+            let to = trains[i].stops[j + 1];
+            let cost = to.fare;
+            let time = to.arrival_time;
+            let capacity = trains[i].capacity;
+            //here time is equall to null or hh:mm
+            graph[from.station_id].push({ to: to.station_id, cost, time, train_id: trains[i].train_id, capacity });
+        }
+    }
+    let visited = {};
+    let previous = {};
+
+    let queue = new PriorityQueue();
+    for (let i = 0; i < stations.length; i++) {
+        visited[stations[i].station_id] = false;
+        previous[stations[i].station_id] = null;
+    }
+    let cost = {};
+    for (let i = 0; i < stations.length; i++) {
+        cost[stations[i].station_id] = Infinity;
+    }
+    cost[from] = 0;
+    queue.enqueue(from, 0);
+    while (!queue.isEmpty()) {
+        let current = queue.dequeue();
+        if (visited[current]) {
+            continue;
+        }
+        visited[current] = true;
+        for (let i = 0; i < graph[current].length; i++) {
+            let neighbor = graph[current][i].to;
+            let newCost = cost[current] + graph[current][i].cost;
+            let newTime = convertTimeToMinutes(graph[current][i].time);
+            let timeAfterInMinutes = convertTimeToMinutes(timeAfter);
+            if (newCost < cost[neighbor] && newTime > timeAfterInMinutes && graph[current][i].capacity > 0) {
+                cost[neighbor] = newCost;
+                previous[neighbor] = current;
+                queue.enqueue(neighbor, newCost);
+            }
+        }
+    }
+    let path = [];
+    let current = to;
+    while (current) {
+        path.push(current);
+        current = previous[current];
+    }
+    path = path.reverse();
+    if (path.length === 1) {
+        return { message: `no routes available from station: ${from} to station: ${to}`, status: 403 };
+    }
+    let stationsInOrder = [];
+    let totalCost = 0;
+    let totalTime = 0;
+    for (let i = 0; i < path.length - 1; i++) {
+        let from = path[i];
+        let to = path[i + 1];
+        let train = graph[from].find(train => train.to === to);
+        let station = stations.find(station => station.station_id === from);
+        stationsInOrder.push({ station_id: station.station_id, train_id: train.train_id, arrival_time: station.latitude, departure_time: train.time });
+        totalCost += train.cost;
+        totalTime += train.time;
+    }
+    return { cost: totalCost, time: totalTime, stations: stationsInOrder };
+}
+    
+
 
     
    
@@ -318,11 +270,21 @@ const getOptimalRoute = async (req, res) => {
     try {
         const stations = await Station.find({});
         const trains = await Train.find({});
-        const route = await getRoute(stations, trains, from, to, optimize);
-        if (route.message) {
-            return res.status(route.status).json({ message: route.message });
+        if (optimize === 'cost') {
+            const route = await getRouteByCost(stations, trains, from, to);
+            if (route.message) {
+                return res.status(route.status).json({ message: route.message });
+            }
+            res.status(200).json({ total_cost: route.cost, total_time: route.time, stations: route.stations });
+        } else if (optimize === 'time') {
+            const route = await getRouteByTime(stations, trains, from, to);
+            if (route.message) {
+                return res.status(route.status).json({ message: route.message });
+            }
+            res.status(200).json({ total_cost: route.cost, total_time: route.time, stations: route.stations });
+        } else {
+            res.status(400).json({ message: `invalid optimize: ${optimize}` });
         }
-        res.status(200).json({ total_cost: route.cost, total_time: route.time, stations: route.stations });
     } catch (error) {
         res.status(400).json({ error: error?.message });
     }
@@ -332,237 +294,39 @@ const getOptimalRoute = async (req, res) => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-// Example request for no tickets:
-// Request URL: [PUT] http://localhost:8000/api/tickets
-// Content Type: application/json
-// Request Body:
-
-// {
-// "wallet_id": 3,
-// "time_after": "10:55",
-// "station_from": 1,
-// "station_to": 5
-// }
-
-// Example failed response:
-// Content Type: application/json
-// HTTP Status Code: 403
-// Response Body:
-
-// {
-// "message": "no routes available from station: 1 to station: 5"
-// }
-
-
-// Request Specification
-// URL: /api/tickets
-// Method: POST
-// Request model:
-
-// {
-// "wallet_id": int, # user's wallet id (same as user id)
-// "time_after": string, # time (24 hours hh:mm) after which user
-// wants to purchase a ticket
-// "station_from": int, # station_id for the starting station
-// "station_to": int # station_id for the destination station
-// }
-
-// Successful Response
-// Upon successful operation, your API must return a 201 status code with the generated ticket ID, remaining
-// balance, wallet ID, and a list of all stations in order of visits. You should also include each station's train ID and
-// arrival and departure schedules in the output object. Departure time should follow the same time format as in
-// the input model. For the first station, the arrival time should be null, and for the last station, the departure
-// time should be null.
-// Response status: 201 - Created
-// Response model
-
-// {
-// "ticket_id": int, # generate a unique integer ticket
-// ID
-// "wallet_id": int, # user's wallet id (same as user
-// id)
-// "balance": integer, # remaining balance
-// "stations": [
-// {
-// "station_id": integer, # station's numeric id
-
-// "train_id": integer, # train's id user is riding
-// "arrival_time": string, # arrival time
-// "departure_time": string # departure time
-// },
-// ...
-// ]
-// }
-
-// Failed Response
-// Insufficient balance
-// If the wallet has insufficient balance for purchasing the ticket, respond with HTTP 402 - Payment Required and
-// a message showing the shortage amount.
-// Response status: 402 - Payment Required
-// Response model
-
-// {
-// "message": "recharge amount: {shortage_amount} to purchase the thicket"
-// }
-
-// Replace {shortage_amount} with the amount the user is short of the ticket's cost.
-
-// Note: This amount may vary depending on whether you can find an optimal-cost route for the user. Sub-
-// optimal solutions may be awarded with partial scores.
-
-// Unreachable station
-// If it is impossible to reach the destination station from the starting station, output a message with HTTP 403 -
-// Forbidden and a message for the user.
-// Response status: 403 - Forbidden
-// Response model
-
-// {
-// "message": "no ticket available for station: {station_from} to station:
-// {station_to}"
-// }
-
-// Replace {station_from} and {station_to} as specified in the input model.
-// Examples
-
-// Let's look at some example requests and responses.
-// Example request:
-// Request URL: [PUT] http://localhost:8000/api/tickets
-// Content Type: application/json
-// Request Body:
-
-// {
-// "wallet_id": 3,
-// "time_after": "10:55",
-// "station_from": 1,
-// "station_to": 5
-// }
-
-// Example successful response:
-// Content Type: application/json
-// HTTP Status Code: 201
-// Response Body:
-
-// {
-// "ticket_id": 101,
-// "balance": 43,
-// "wallet_id": 3,
-// "stations": [
-// {
-// "station_id": 1,
-// "train_id": 3,
-// "departure_time": "11:00",
-// "arrival_time": null,
-// },
-// {
-// "station_id": 3,
-// "train_id": 2,
-// "departure_time": "12:00",
-// "arrival_time": "11:55"
-// },
-// {
-// "station_id": 5,
-// "train_id": 2,
-// "departure_time": null,
-// "arrival_time": "12:25"
-// }
-
-// ]
-// }
-
-// Example request for no tickets:
-// Request URL: [PUT] http://localhost:8000/api/tickets
-// Content Type: application/json
-// Request Body:
-
-// {
-// "wallet_id": 3,
-// "time_after": "10:55",
-// "station_from": 1,
-// "station_to": 5
-// }
-
-// Example failed response:
-// Content Type: application/json
-// HTTP Status Code: 403
-// Response Body:
-
-// {
-// "message": "no ticket available for station: 1 to station: 5"
-// }
-
-// Example request for insufficient funds:
-// Request URL: [PUT] http://localhost:8000/api/tickets
-// Content Type: application/json
-// Request Body:
-
-// {
-// "wallet_id": 3,
-// "time_after": "10:55",
-// "station_from": 1,
-// "station_to": 5
-// }
-
-// Example failed response:
-
-// Content Type: application/json
-// HTTP Status Code: 402
-// Response Body:
-
-// {
-// "message": "recharge amount: 113 to purchase the ticket"
-// }
-
-
-// Users can use their wallet balance to purchase tickets from stations A to B. The cost is calculated as the sum of
-// the fares for each pair of consecutive stations along the route. Upon successful purchase, your API should
-// respond with the station in order visited by one or more trains and the remaining wallet balance. If the wallet
-// does not have sufficient funds, respond with an error specifying the shortage amount. If it is impossible to
-// reach station B from station A within the day or due to a lack of trains, respond with an error specifying that no
-// tickets are available.
-// Note: The user may want to change the train at a particular station for a cheaper trip. Partial scoring will be
-// awarded if your API fails to find an optimal route. You can assume that the start and destination stations will
-// always differ, and the user must complete the trip within the current day.
-
-    
-    
-
-
 //@ROUTE - /api/tickets
 //@DESC - Purchase a ticket
 //@METHOD - POST
 const purchaseTicket = async (req, res) => {
-  const { wallet_id, time_after, station_from, station_to } = req.body;
-  try {
-    const user = await User.findOne({ user_id: wallet_id });
-    if (!user) {
-      return res.status(404).json({ message: `wallet with id: ${wallet_id} was not found` });
-    }
-    const stations = await Station.find({});
+    const { wallet_id, time_after, station_from, station_to } = req.body;
+    try {
+        const stations = await Station.find({});
         const trains = await Train.find({});
-        const ticket = await getTicket(user, stations, trains, time_after, station_from, station_to);
-        if (ticket.message) {
-          return res.status(ticket.status).json({ message: ticket.message });
+        const wallet = await User.findOne({ user_id: wallet_id });
+        if (!wallet) {
+            return res.status(404).json({ message: `wallet with id: ${wallet_id} was not found` });
         }
-        user.balance -= ticket.cost;
-        await user.save();
-        res.status(201).json({ ticket_id: ticket.id, wallet_id, balance: user.balance, stations: ticket.stations });
+        const route = await getRouteByCostTimeAfter(stations, trains, station_from, station_to, time_after);
+        if (route.message) {
+            return res.status(route.status).json({ message: route.message });
+        }
+        const totalCost = route.cost;
+        if (wallet.balance < totalCost) {
+            return res.status(402).json({ message: `recharge amount: ${totalCost - wallet.balance} to purchase the ticket` });
+        }
+        wallet.balance -= totalCost;
+        await wallet.save();
+        res.status(201).json({ ticket_id: 1, balance: wallet.balance, wallet_id, stations: route.stations });
     }
     catch (error) {
-      res.status(400).json({ error: error?.message });
+        res.status(400).json({ error: error?.message });
     }
 }
+   
+    
+    
+    
+    
     
  
 
