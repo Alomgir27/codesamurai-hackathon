@@ -251,59 +251,59 @@ const getRouteByCost = async (stations, trains, from, to) => {
     }
     let visited = {};
     let previous = {};
-    //declare distance as an Set of pair cost and time
-    let distance = {};
+
+    let queue = new PriorityQueue();
     for (let i = 0; i < stations.length; i++) {
-        //in distance keep a pair cost and time
-        distance[stations[i].station_id] = { cost: Infinity, time: Infinity };
+        visited[stations[i].station_id] = false;
         previous[stations[i].station_id] = null;
     }
-
-    distance[from] = { cost: 0, time: 0 };
-    while (true) {
-        let min = Infinity;
-        let u = null;
-        for (let i = 0; i < stations.length; i++) {
-            if (!visited[stations[i].station_id] && distance[stations[i].station_id].cost < min) {
-                min = distance[stations[i].station_id].cost;
-                u = stations[i].station_id;
-            }
+    let cost = {};
+    for (let i = 0; i < stations.length; i++) {
+        cost[stations[i].station_id] = Infinity;
+    }
+    cost[from] = 0;
+    queue.enqueue(from, 0);
+    while (!queue.isEmpty()) {
+        let current = queue.dequeue();
+        if (visited[current]) {
+            continue;
         }
-        if (u === null) {
-            break;
-        }
-        visited[u] = true;
-        for (let i = 0; i < graph[u].length; i++) {
-            let v = graph[u][i].to;
-            let cost = graph[u][i].cost;
-            let time = graph[u][i].time;
-            if (distance[u].cost + cost < distance[v].cost) {
-                distance[v].cost = distance[u].cost + cost;
-                distance[v].time = distance[u].time + time;
-                previous[v] = u;
+        visited[current] = true;
+        for (let i = 0; i < graph[current].length; i++) {
+            let neighbor = graph[current][i].to;
+            let newCost = cost[current] + graph[current][i].cost;
+            if (newCost < cost[neighbor]) {
+                cost[neighbor] = newCost;
+                previous[neighbor] = current;
+                queue.enqueue(neighbor, newCost);
             }
         }
     }
     let path = [];
-    let end = to;
-    while (end !== null) {
-        path.push(end);
-        end = previous[end];
+    let current = to;
+    while (current) {
+        path.push(current);
+        current = previous[current];
     }
-    path.reverse();
+    path = path.reverse();
+    if (path.length === 1) {
+        return { message: `no routes available from station: ${from} to station: ${to}`, status: 403 };
+    }
     let stationsInOrder = [];
-    let ke
-    for (let i = 0; i < path.length; i++) {
-        let station = stations.find(station => station.station_id === path[i]);
-        let train = null;
-        if (i < path.length - 1) {
-            train = trains.find(train => train.stops.some(stop => stop.station_id === path[i] && stop.departure_time !== null));
-        }
-        stationsInOrder.push({ station_id: station.station_id, train_id: train?.train_id, arrival_time: i === 0 ? null : train?.stops.find(stop => stop.station_id === path[i - 1]).arrival_time, departure_time: i === path.length - 1 ? null : train?.stops.find(stop => stop.station_id === path[i]).departure_time });
+    let totalCost = 0;
+    let totalTime = 0;
+    for (let i = 0; i < path.length - 1; i++) {
+        let from = path[i];
+        let to = path[i + 1];
+        let train = graph[from].find(train => train.to === to);
+        let station = stations.find(station => station.station_id === from);
+        stationsInOrder.push({ station_id: station.station_id, train_id: train.train_id, arrival_time: station.latitude, departure_time: train.time });
+        totalCost += train.cost;
+        totalTime += train.time;
     }
-    return { cost: distance[to].cost, time: distance[to].time, stations: stationsInOrder };
+    return { cost: totalCost, time: totalTime, stations: stationsInOrder };
 }
-
+   
 
     
    
