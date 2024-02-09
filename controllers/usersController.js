@@ -120,7 +120,7 @@ const getRouteByCost = async (stations, trains, from, to) => {
             departure_time: theTrain.stops.find(stop => stop?.station_id === from).departure_time
         });
         totalCost += train.cost;
-        totalTime += train.time;
+        totalTime = convertTimeToMinutes(train.time);
     }
     return { cost: totalCost, time: totalTime, stations: stationsInOrder };
 }
@@ -212,7 +212,7 @@ const getRouteByTime = async (stations, trains, from, to) => {
             departure_time: theTrain.stops.find(stop => stop?.station_id === from).departure_time
         });
         totalCost += train.cost;
-        totalTime += train.time;
+        totalTime = convertTimeToMinutes(train.time);
     }
     return { cost: totalCost, time: totalTime, stations: stationsInOrder };
 }
